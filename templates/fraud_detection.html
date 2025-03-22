@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Fraud Detection</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #bb86fc;
+            --background-dark: #121212;
+            --card-background: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --danger-color: #cf6679;
+            --success-color: #03dac6;
+            --warning-color: #ffb74d;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .chart-container {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            height: 300px;
+        }
+
+        .donut-chart {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .patterns-container {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .pattern-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .pattern-icon {
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        .pattern-info {
+            flex-grow: 1;
+        }
+
+        .confidence-bar {
+            background-color: rgba(187, 134, 252, 0.3);
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 5px;
+        }
+
+        .confidence-level {
+            background-color: var(--primary-color);
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transactions-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .fraud-probability {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .probability-bar {
+            flex-grow: 1;
+            height: 4px;
+            background-color: rgba(187, 134, 252, 0.3);
+            border-radius: 2px;
+        }
+
+        .probability-level {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .high-risk {
+            background-color: var(--danger-color);
+        }
+
+        .medium-risk {
+            background-color: var(--warning-color);
+        }
+
+        .low-risk {
+            background-color: var(--success-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .confirm-btn {
+            background-color: var(--success-color);
+            color: black;
+        }
+
+        .dismiss-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* Add styles for confirmed frauds section */
+        .confirmed-frauds {
+            margin-top: 40px;
+        }
+        
+        .status-text.confirmed {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+        
+        /* Update existing styles */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .confirm-btn {
+            background-color: var(--success-color);
+            color: black;
+        }
+        
+        .dismiss-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .status-text {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>AI Fraud Detection</h1>
+        <button class="refresh-btn" onclick="location.reload()">
+            <span class="material-icons">refresh</span>
+            Refresh Analysis
+        </button>
+    </div>
+
+    <div class="grid-container">
+        <div class="stat-card">
+            <div class="stat-value">{{ flagged_count }}</div>
+            <div class="stat-label">Flagged Transactions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ suspicious_percentage }}%</div>
+            <div class="stat-label">Suspicious Rate</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ risk_score }}/10</div>
+            <div class="stat-label">Risk Score</div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="chart-container">
+            <canvas id="transactionChart"></canvas>
+        </div>
+
+        <div class="patterns-container">
+            <h3>Detected Patterns</h3>
+            {% for pattern in fraud_patterns %}
+            <div class="pattern-item">
+                <span class="material-icons pattern-icon">{{ pattern.icon }}</span>
+                <div class="pattern-info">
+                    <div>{{ pattern.description }}</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-level" style="width: {{ pattern.confidence }}%"></div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.9em; color: var(--text-secondary);">
+                        {{ pattern.confidence }}% confidence
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <h2>AI Flagged Transactions</h2>
+    <table class="transactions-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Fraud Probability</th>
+                <th>Reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="flagged-transactions-tbody">
+            {% for transaction in ml_flagged_transactions %}
+            <tr data-transaction-id="{{ transaction.id }}">
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.merchant }}<br>
+                    <small style="color: var(--text-secondary);">{{ transaction.category }}</small>
+                </td>
+                <td style="color: {% if transaction.amount < 0 %}var(--danger-color){% else %}var(--success-color){% endif %}">
+                    ₹{{ '{:,.2f}'.format(transaction.amount|abs) }}
+                </td>
+                <td>
+                    <div class="fraud-probability">
+                        <div class="probability-bar">
+                            <div class="probability-level {% if transaction.fraud_probability > 80 %}high-risk{% elif transaction.fraud_probability > 50 %}medium-risk{% else %}low-risk{% endif %}"
+                                style="width: {{ transaction.fraud_probability }}%"></div>
+                        </div>
+                        <span>{{ transaction.fraud_probability }}%</span>
+                    </div>
+                </td>
+                <td>{{ transaction.flag_reason }}</td>
+                <td>
+                    <div class="action-buttons">
+                        {% if not transaction.fraud_status %}
+                            <button class="action-btn confirm-btn" onclick="handleTransaction('{{ transaction.id }}', 'confirm')">Confirm</button>
+                            <button class="action-btn dismiss-btn" onclick="handleTransaction('{{ transaction.id }}', 'dismiss')">Dismiss</button>
+                        {% else %}
+                            <span class="status-text">{{ transaction.fraud_status|title }}ed</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Confirmed Fraud Reports</h2>
+    <table class="transactions-table confirmed-frauds">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Fraud Probability</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="confirmed-frauds-tbody">
+            {% for transaction in ml_flagged_transactions if transaction.fraud_status == 'confirm' %}
+            <tr data-transaction-id="{{ transaction.id }}">
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.merchant }}<br>
+                    <small style="color: var(--text-secondary);">{{ transaction.category }}</small>
+                </td>
+                <td style="color: var(--danger-color)">
+                    ₹{{ '{:,.2f}'.format(transaction.amount|abs) }}
+                </td>
+                <td>
+                    <div class="fraud-probability">
+                        <div class="probability-bar">
+                            <div class="probability-level high-risk" style="width: {{ transaction.fraud_probability }}%"></div>
+                        </div>
+                        <span>{{ transaction.fraud_probability }}%</span>
+                    </div>
+                </td>
+                <td>{{ transaction.flag_reason }}</td>
+                <td><span class="status-text confirmed">Confirmed Fraud</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Initialize the chart
+        let transactionChart;
+        function initChart(data) {
+            const ctx = document.getElementById('transactionChart').getContext('2d');
+            transactionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Safe', 'Suspicious', 'Fraudulent'],
+                    datasets: [{
+                        data: [
+                            data.safe,
+                            data.suspicious,
+                            data.fraudulent
+                        ],
+                        backgroundColor: [
+                            '#03dac6',  // Safe
+                            '#ffb74d',  // Suspicious
+                            '#cf6679'   // Fraudulent
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Initialize with current data
+        initChart({{ chart_data|tojson }});
+
+        // Update chart data
+        function updateChart(data) {
+            transactionChart.data.datasets[0].data = [
+                data.safe,
+                data.suspicious,
+                data.fraudulent
+            ];
+            transactionChart.update();
+        }
+
+        // Update summary stats
+        function updateSummary(summary) {
+            document.querySelector('.stat-value:nth-child(1)').textContent = summary.flagged_count;
+            document.querySelector('.stat-value:nth-child(2)').textContent = summary.suspicious_percentage + '%';
+            document.querySelector('.stat-value:nth-child(3)').textContent = summary.risk_score + '/10';
+        }
+
+        // Update patterns
+        function updatePatterns(patterns) {
+            const container = document.querySelector('.patterns-container');
+            let html = '<h3>Detected Patterns</h3>';
+            
+            patterns.forEach(pattern => {
+                html += `
+                <div class="pattern-item">
+                    <span class="material-icons pattern-icon">${pattern.icon}</span>
+                    <div class="pattern-info">
+                        <div>${pattern.description}</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-level" style="width: ${pattern.confidence}%"></div>
+                        </div>
+                        <div style="text-align: right; font-size: 0.9em; color: var(--text-secondary);">
+                            ${pattern.confidence}% confidence
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Update transactions table
+        function updateTransactions(transactions) {
+            const tbody = document.querySelector('.transactions-table tbody');
+            let html = '';
+            
+            transactions.forEach(transaction => {
+                const rowClass = transaction.fraud_status ? `status-${transaction.fraud_status}` : '';
+                html += `
+                <tr class="${rowClass}">
+                    <td>${transaction.date}</td>
+                    <td>${transaction.merchant}<br>
+                        <small style="color: var(--text-secondary);">${transaction.category}</small>
+                    </td>
+                    <td style="color: ${transaction.amount < 0 ? 'var(--danger-color)' : 'var(--success-color)'}">
+                        ₹${Math.abs(transaction.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                    </td>
+                    <td>
+                        <div class="fraud-probability">
+                            <div class="probability-bar">
+                                <div class="probability-level ${transaction.fraud_probability > 80 ? 'high-risk' : transaction.fraud_probability > 50 ? 'medium-risk' : 'low-risk'}"
+                                    style="width: ${transaction.fraud_probability}%"></div>
+                            </div>
+                            <span>${transaction.fraud_probability}%</span>
+                        </div>
+                    </td>
+                    <td>${transaction.flag_reason}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${!transaction.fraud_status ? `
+                                <button class="action-btn confirm-btn" onclick="handleTransaction('${transaction.id}', 'confirm')">Confirm</button>
+                                <button class="action-btn dismiss-btn" onclick="handleTransaction('${transaction.id}', 'dismiss')">Dismiss</button>
+                            ` : `
+                                <span class="status-text">${transaction.fraud_status.charAt(0).toUpperCase() + transaction.fraud_status.slice(1)}ed</span>
+                            `}
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Handle transaction actions
+        async function handleTransaction(transactionId, action) {
+            try {
+                console.log('Handling transaction:', transactionId, action);
+                
+                const response = await fetch(`/handle_flagged_transaction/${transactionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=${action}`
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.success) {
+                    // Get the transaction row
+                    const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
+                    if (row) {
+                        if (action === 'dismiss') {
+                            // For dismiss, just remove the row
+                            row.remove();
+                        } else if (action === 'confirm') {
+                            // For confirm, update the action buttons to show status
+                            const actionButtons = row.querySelector('.action-buttons');
+                            actionButtons.innerHTML = '<span class="status-text confirmed">Confirmed</span>';
+                            
+                            // Clone the row and modify it for the confirmed frauds table
+                            const confirmedRow = row.cloneNode(true);
+                            // Update the last cell to show "Confirmed Fraud"
+                            confirmedRow.lastElementChild.innerHTML = '<span class="status-text confirmed">Confirmed Fraud</span>';
+                            
+                            // Add to confirmed frauds table
+                            const confirmedTbody = document.getElementById('confirmed-frauds-tbody');
+                            confirmedTbody.appendChild(confirmedRow);
+                        }
+                    }
+                    
+                    // Update chart and summary stats
+                    if (data.summary) {
+                        updateChart(data.summary.chart_data);
+                        updateSummary(data.summary);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Remove error popup, just log to console
+            }
+        }
+
+        // Update confirmed frauds table
+        function updateConfirmedFrauds(confirmedFrauds) {
+            const tbody = document.getElementById('confirmed-frauds-tbody');
+            let html = '';
+            
+            confirmedFrauds.forEach(transaction => {
+                html += `
+                <tr data-transaction-id="${transaction.id}">
+                    <td>${transaction.date}</td>
+                    <td>${transaction.merchant}<br>
+                        <small style="color: var(--text-secondary);">${transaction.category}</small>
+                    </td>
+                    <td style="color: var(--danger-color)">
+                        ₹${Math.abs(transaction.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                    </td>
+                    <td>
+                        <div class="fraud-probability">
+                            <div class="probability-bar">
+                                <div class="probability-level high-risk" style="width: ${transaction.fraud_probability}%"></div>
+                            </div>
+                            <span>${transaction.fraud_probability}%</span>
+                        </div>
+                    </td>
+                    <td>${transaction.flag_reason}</td>
+                    <td><span class="status-text confirmed">Confirmed Fraud</span></td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Refresh analysis
+        async function refreshAnalysis() {
+            try {
+                const response = await fetch('/refresh_fraud_analysis');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateChart(data.summary.chart_data);
+                    updateSummary(data.summary);
+                    updatePatterns(data.patterns);
+                    updateTransactions(data.transactions);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Add styles for transaction status
+        const style = document.createElement('style');
+        style.textContent = `
+            .status-confirm {
+                background-color: rgba(3, 218, 198, 0.1);
+            }
+            .status-dismiss {
+                background-color: rgba(207, 102, 121, 0.1);
+            }
+            .status-text {
+                color: var(--text-secondary);
+                font-style: italic;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Refresh button handler
+        document.querySelector('.refresh-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            refreshAnalysis();
+        });
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshAnalysis, 300000);
+    </script>
+</body>
+</html> 

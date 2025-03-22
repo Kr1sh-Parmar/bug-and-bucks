@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile">
+            <div class="avatar">{{ user_id[0] | upper }}</div>
+            <h3>{{ user_data.username }}</h3>
+        </div>
+        <nav>
+            <ul>
+                <li class="active"><a href="{{ url_for('dashboard') }}"><i class="material-icons">dashboard</i> Dashboard</a></li>
+                <li><a href="{{ url_for('transactions') }}"><i class="material-icons">receipt_long</i> Transactions</a></li>
+                <li><a href="{{ url_for('fraud_detection') }}"><i class="material-icons">security</i> Fraud Detection</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Welcome to Your Secure Dashboard</h1>
+            <div class="user-actions">
+                <span>Last login: {{ last_login }}</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="card personal-info">
+                <h2>Personal Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>User ID:</label>
+                        <p>{{ user_data.user_id }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Username:</label>
+                        <p>{{ user_data.username }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <p>{{ user_data.email }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone:</label>
+                        <p>{{ user_data.phone }}</p>
+                    </div>
+                    <div class="info-item full-width">
+                        <label>Address:</label>
+                        <p>{{ user_data.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card blockchain-info">
+                <h2>Blockchain Identity</h2>
+                <div class="blockchain-status">
+                    <div class="status-indicator verified">
+                        <i class="material-icons">verified</i>
+                    </div>
+                    <div class="status-details">
+                        <p>Your identity is securely verified on the blockchain</p>
+                        <code>{{ identity_hash }}</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-row">
+                <div class="card security-summary">
+                    <h2>Security Summary</h2>
+                    <ul class="security-list">
+                        <li><i class="material-icons">check_circle</i> Face verification active</li>
+                        <li><i class="material-icons">check_circle</i> Document verification complete</li>
+                        <li><i class="material-icons">check_circle</i> Blockchain identity secure</li>
+                    </ul>
+                </div>
+
+                <div class="card recent-activity">
+                    <h2>Recent Activity</h2>
+                    <ul class="activity-list">
+                        <li>
+                            <i class="material-icons">login</i>
+                            <div>
+                                <p>System login</p>
+                                <span>{{ recent_login_time }}</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="material-icons">face</i>
+                            <div>
+                                <p>Face verification</p>
+                                <span>{{ recent_login_time }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Register - Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <style>
+        body {
+            background-color: #121212;
+            color: rgba(255, 255, 255, 0.87);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #292929;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.87);
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background-color: #bb86fc;
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Register New Account</h1>
+        
+        {% if error %}
+        <div style="color: #cf6679; margin-bottom: 20px;">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="face_image">Face Image (upload a photo):</label>
+                <input type="file" id="face_image" name="face_image" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="document_type">Document Type:</label>
+                <select id="document_type" name="document_type" required>
+                    <option value="id_card">ID Card</option>
+                    <option value="passport">Passport</option>
+                    <option value="driver_license">Driver's License</option>
+                    <option value="aadhar_card">Aadhar Card</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="document_image">Document Image:</label>
+                <input type="file" id="document_image" name="document_image" accept="image/*" required>
+            </div>
+            
+            <button type="submit">Register</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('index') }}" style="color: #bb86fc; text-decoration: none;">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html> 

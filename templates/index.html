@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            display: block;
+            background-color: var(--dark-bg);
+            color: var(--dark-text-primary);
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--dark-primary), var(--dark-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: var(--dark-text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .main-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 60px;
+        }
+        .option-card {
+            background-color: var(--dark-surface);
+            border-radius: 8px;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--dark-primary-variant), var(--dark-primary));
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .material-icons {
+            font-size: 40px;
+            color: #000;
+        }
+        .option-card h2 {
+            margin-bottom: 15px;
+            color: var(--dark-text-primary);
+        }
+        .option-card p {
+            margin-bottom: 30px;
+            color: var(--dark-text-secondary);
+            font-size: 14px;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: var(--dark-primary);
+            color: #000;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .action-button:hover {
+            background-color: var(--dark-primary-variant);
+        }
+        .features {
+            margin-top: 80px;
+        }
+        .features h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 28px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .feature-item {
+            background-color: var(--dark-surface);
+            padding: 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .feature-icon {
+            margin-right: 15px;
+            color: var(--dark-primary);
+        }
+        .feature-content h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .feature-content p {
+            color: var(--dark-text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Facial Blockchain Authentication</h1>
+            <p class="subtitle">Secure your digital identity with cutting-edge facial recognition and blockchain technology</p>
+        </div>
+        
+        <div class="main-options">
+            <div class="option-card">
+                <div class="icon-container">
+                    <i class="material-icons">person_add</i>
+                </div>
+                <h2>Register</h2>
+                <p>Create a new secure account with facial and document verification</p>
+                <a href="{{ url_for('register') }}" class="action-button">Get Started</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="icon-container">
+                    <i class="material-icons">login</i>
+                </div>
+                <h2>Login</h2>
+                <p>Access your account securely with facial recognition technology</p>
+                <a href="{{ url_for('login') }}" class="action-button">Sign In</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">face</i>
+                    <div class="feature-content">
+                        <h3>Facial Authentication</h3>
+                        <p>Advanced facial recognition protects your account beyond traditional passwords</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">security</i>
+                    <div class="feature-content">
+                        <h3>Blockchain Security</h3>
+                        <p>Your identity is cryptographically secured on a tamper-proof blockchain</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">description</i>
+                    <div class="feature-content">
+                        <h3>Document Verification</h3>
+                        <p>Multi-factor authentication using official identity documents</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">receipt_long</i>
+                    <div class="feature-content">
+                        <h3>Transaction Monitoring</h3>
+                        <p>Track and manage your transaction history securely</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">psychology</i>
+                    <div class="feature-content">
+                        <h3>AI Fraud Detection</h3>
+                        <p>Advanced machine learning algorithms protect against fraudulent activities</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="material-icons feature-icon">privacy_tip</i>
+                    <div class="feature-content">
+                        <h3>Privacy Focused</h3>
+                        <p>Your biometric data never leaves your control</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

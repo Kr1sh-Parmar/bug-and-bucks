@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            display: block;
+            background-color: #121212;
+            color: rgba(255, 255, 255, 0.87);
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        input[type="text"], 
+        input[type="email"], 
+        input[type="tel"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #292929;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+        textarea {
+            resize: vertical;
+        }
+        button, input[type="submit"] {
+            background-color: #bb86fc;
+            color: #000;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .error {
+            background-color: rgba(207, 102, 121, 0.1);
+            border-left: 4px solid #cf6679;
+            color: #cf6679;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .links a {
+            color: #bb86fc;
+            text-decoration: none;
+        }
+        .video-container {
+            margin-top: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #000;
+        }
+        #video {
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin: 0 auto;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        #capture-btn {
+            background-color: #3700b3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin: 10px auto;
+            display: block;
+            width: auto;
+        }
+        #canvas {
+            display: none;
+        }
+        .preview-img {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px auto;
+            display: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Registration</h1>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="3" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="face_image">Face Image:</label>
+                <input type="file" id="face_image" name="face_image" accept="image/*" style="display:none;">
+                <div class="video-container">
+                    <video id="video" width="400" height="300" autoplay playsinline muted></video>
+                </div>
+                <button type="button" id="capture-btn">Capture Photo</button>
+                <canvas id="canvas" width="400" height="300"></canvas>
+                <img id="preview" class="preview-img">
+            </div>
+            
+            <div class="form-group">
+                <label for="document_type">Document Type:</label>
+                <select id="document_type" name="document_type" required>
+                    <option value="id_card">ID Card</option>
+                    <option value="passport">Passport</option>
+                    <option value="driver_license">Driver's License</option>
+                    <option value="aadhar_card">Aadhar Card</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="document_image">Document Image:</label>
+                <input type="file" id="document_image" name="document_image" accept="image/*" required>
+            </div>
+            
+            <input type="submit" value="Register">
+        </form>
+        
+        <div class="links">
+            <a href="{{ url_for('index') }}">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Improved camera script with performance optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const captureBtn = document.getElementById('capture-btn');
+            const faceInput = document.getElementById('face_image');
+            const preview = document.getElementById('preview');
+            
+            // Camera constraints for better performance
+            const constraints = {
+                video: {
+                    width: { ideal: 400 },
+                    height: { ideal: 300 },
+                    frameRate: { ideal: 15 }  // Lower framerate for less lag
+                }
+            };
+            
+            // Get access to the camera with optimized settings
+            if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.error("Camera error: ", err);
+                    alert("Unable to access camera. Please check permissions or use file upload instead.");
+                });
+            }
+            
+            // Capture from video stream
+            captureBtn.addEventListener('click', function() {
+                const context = canvas.getContext('2d');
+                // Flip horizontal to match mirrored video
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1);
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Show preview
+                preview.src = canvas.toDataURL('image/png');
+                preview.style.display = 'block';
+                captureBtn.textContent = "Recapture";
+                
+                // Convert canvas to file
+                canvas.toBlob(function(blob) {
+                    const file = new File([blob], "captured-face.png", { type: "image/png" });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    faceInput.files = dataTransfer.files;
+                }, 'image/png', 0.9); // Use 90% quality for better performance
+            });
+            
+            // Allow standard file upload as fallback
+            faceInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

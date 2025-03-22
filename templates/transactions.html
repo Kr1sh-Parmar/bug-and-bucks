@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transactions - Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <!-- Same sidebar as dashboard -->
+        <div class="profile">
+            <div class="avatar">{{ user_id[0] | upper }}</div>
+            <h3>{{ user_data.username }}</h3>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}"><i class="material-icons">dashboard</i> Dashboard</a></li>
+                <li class="active"><a href="{{ url_for('transactions') }}"><i class="material-icons">receipt_long</i> Transactions</a></li>
+                <li><a href="{{ url_for('fraud_detection') }}"><i class="material-icons">security</i> Fraud Detection</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="material-icons">exit_to_app</i> Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Recent Transactions</h1>
+            <div class="user-actions">
+                <button class="btn-primary"><i class="material-icons">add</i> New Transaction</button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="card transactions">
+                <div class="filter-bar">
+                    <div class="search">
+                        <i class="material-icons">search</i>
+                        <input type="text" placeholder="Search transactions...">
+                    </div>
+                    <div class="filters">
+                        <select>
+                            <option>All transactions</option>
+                            <option>Income</option>
+                            <option>Expenses</option>
+                            <option>Flagged</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="transactions-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr class="{{ 'flagged' if transaction.flagged }}">
+                                <td>{{ transaction.date }}</td>
+                                <td>
+                                    <div class="transaction-info">
+                                        <span class="merchant">{{ transaction.merchant }}</span>
+                                        <span class="category">{{ transaction.category }}</span>
+                                    </div>
+                                </td>
+                                <td class="amount {{ 'negative' if transaction.amount < 0 }}">₹{{ transaction.amount }}</td>
+                                <td>
+                                    {% if transaction.flagged %}
+                                    <span class="status flagged">Flagged</span>
+                                    {% else %}
+                                    <span class="status completed">Completed</span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions">
+                                    <form method="POST" action="{{ url_for('flag_transaction', transaction_id=transaction.id) }}" class="flag-form">
+                                        <input type="hidden" name="transaction_id" value="{{ transaction.id }}">
+                                        <button type="submit" class="icon-button {{ 'active' if transaction.flagged }}">
+                                            <i class="material-icons">flag</i>
+                                        </button>
+                                    </form>
+                                    <button class="icon-button"><i class="material-icons">info</i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Facial Blockchain Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            display: block;  /* Override flex from dark-style.css */
+        }
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background-color: var(--dark-surface);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--dark-text-primary);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-text-secondary);
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--dark-surface-light);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: var(--dark-text-primary);
+        }
+        button {
+            background-color: var(--dark-primary);
+            color: #000;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .error {
+            background-color: rgba(207, 102, 121, 0.1);
+            border-left: 4px solid var(--dark-error);
+            color: var(--dark-error);
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .links a {
+            color: var(--dark-primary);
+            text-decoration: none;
+        }
+        .preview-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        #capture {
+            background-color: var(--dark-primary-variant);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: auto;
+        }
+        .security-note {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(3, 218, 198, 0.1);
+            border-radius: 4px;
+            color: var(--dark-text-secondary);
+            font-size: 14px;
+        }
+        .video-container {
+            margin-bottom: 20px;
+        }
+        .preview-img {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Facial Verification Login</h1>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="face_image">Face Verification:</label>
+                <input type="file" id="face_image" name="face_image" accept="image/*" style="display:none;">
+                <div class="video-container">
+                    <video id="video" width="400" height="300" autoplay playsinline muted></video>
+                </div>
+                <button type="button" id="capture-btn">Capture Photo</button>
+                <canvas id="canvas" width="400" height="300"></canvas>
+                <img id="preview" class="preview-img">
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div class="security-note">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">security</i>
+            Your face is verified against blockchain-secured biometric data
+        </div>
+        
+        <div class="links">
+            <a href="{{ url_for('index') }}">Back to Home</a> | 
+            <a href="{{ url_for('register') }}">Register New Account</a>
+        </div>
+    </div>
+
+    <script>
+        // Improved camera script with performance optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const captureBtn = document.getElementById('capture-btn');
+            const faceInput = document.getElementById('face_image');
+            const preview = document.getElementById('preview');
+            
+            // Camera constraints for better performance
+            const constraints = {
+                video: {
+                    width: { ideal: 400 },
+                    height: { ideal: 300 },
+                    frameRate: { ideal: 15 }  // Lower framerate for less lag
+                }
+            };
+            
+            // Get access to the camera with optimized settings
+            if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.error("Camera error: ", err);
+                    alert("Unable to access camera. Please check permissions.");
+                });
+            }
+            
+            // Capture from video stream
+            captureBtn.addEventListener('click', function() {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas to file
+                canvas.toBlob(function(blob) {
+                    const file = new File([blob], "captured-face.png", { type: "image/png" });
+                    
+                    // Create a FileList-like object
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    // Assign to the file input
+                    faceInput.files = dataTransfer.files;
+                    
+                    // Show preview
+                    preview.src = canvas.toDataURL('image/png');
+                    preview.style.display = 'block';
+                    
+                    // Show success
+                    captureBtn.textContent = "✓ Captured";
+                    setTimeout(() => {
+                        captureBtn.textContent = "Capture Photo";
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
